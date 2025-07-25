@@ -1,13 +1,20 @@
+import { useNavigate } from "react-router-dom";
+
+
 import { motion } from 'framer-motion';
 import brain from '../assets/brain.svg';
 
 export default function Home() {
+   const navigate = useNavigate();
+
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-black via-purple-900 to-black text-white flex items-center justify-center overflow-hidden px-6 py-12">
 
       {/* Botões no canto superior direito */}
       <div className="absolute top-6 right-6 z-20 space-x-4">
-        <button className="bg-white text-purple-700 px-4 py-2 rounded hover:bg-purple-200 transition">Login</button>
+      <button
+          onClick={() => navigate("/login")}
+          className="bg-white text-purple-700 px-4 py-2 rounded hover:bg-purple-200 transition" />
         <button className="bg-white text-purple-700 px-4 py-2 rounded hover:bg-purple-200 transition">Registrar</button>
       </div>
 
