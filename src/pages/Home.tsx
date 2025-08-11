@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 
-
 import { motion } from 'framer-motion';
 import brain from '../assets/brain.svg';
 
@@ -12,10 +11,8 @@ export default function Home() {
 
       {/* Botões no canto superior direito */}
       <div className="absolute top-6 right-6 z-20 space-x-4">
-      <button
-          onClick={() => navigate("/login")}
-          className="bg-white text-purple-700 px-4 py-2 rounded hover:bg-purple-200 transition" />
-        <button className="bg-white text-purple-700 px-4 py-2 rounded hover:bg-purple-200 transition">Registrar</button>
+      <button onClick={() => navigate("/login")} className="bg-white text-purple-700 px-4 py-2 rounded hover:bg-purple-200 transition">Login</button>
+        <button onClick={() => navigate("/register")} className="bg-white text-purple-700 px-4 py-2 rounded hover:bg-purple-200 transition">Registre-se</button>
       </div>
 
       {/* Cérebro GRANDE no fundo */}
