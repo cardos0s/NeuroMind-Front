@@ -8,6 +8,7 @@ import Evolution from "./pages/Evolution";
 import Profiles from "./pages/Profiles";
 import Layout from "./components/layout";
 import BoardBuilder from "./modules/pranchas/pages/BoardBuilder";
+import Feedbacks from "./pages/Feedbacks";
 
 export default function App() {
   return (
@@ -17,14 +18,15 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          {<Route path="/pranchas" element={<BoardBuilder />} /> }
+        {<Route path="/pranchas" element={<BoardBuilder />} /> }
 
         {/* Rotas com layout (Sidebar aparece aqui UMA única vez) */}
         <Route element={<Layout />}>
-          <Route path="/profiles" element={<Profiles />} />
-          <Route path="/evolution" element={<Evolution />} />
+           <Route path="/profiles" element={<Profiles />} />       
+           <Route path="/dashboard" element={<Dashboard />} />
+           <Route path="/evolution" element={<Evolution />} />
           {<Route path="/pranchas" element={<BoardBuilder />} /> }
+          <Route path="/feedbacks" element={<Feedbacks />} />
         </Route>
       </Routes>
     </Router>

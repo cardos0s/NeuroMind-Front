@@ -1,9 +1,7 @@
-import Layout from "../components/layout";
 import StatCard from "../components/statcard";
 import ProgressBar from "../components/progressbar";
 
 export default function Dashboard() {
-  // dados mockados só pro front
   const stats = [
     { title: "Perfis ativos", value: 3 },
     { title: "Sessões este mês", value: 24 },
@@ -24,7 +22,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <Layout>
+    <div>
       {/* título */}
       <div className="mb-4">
         <h2 className="text-xl font-semibold text-gray-800">
@@ -53,7 +51,6 @@ export default function Dashboard() {
               </h3>
               <span className="text-xs text-gray-400">mock</span>
             </div>
-            {/* placeholder gráfico */}
             <div className="mt-3 h-40 rounded-lg bg-gradient-to-r from-purple-50 to-purple-100 border flex items-center justify-center text-purple-700 text-sm">
               Aqui entra o gráfico (Recharts/Chart.js) – só front por enquanto
             </div>
@@ -97,6 +94,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 }
