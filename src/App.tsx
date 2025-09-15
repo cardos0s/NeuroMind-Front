@@ -8,7 +8,14 @@ import Evolution from "./pages/Evolution";
 import Profiles from "./pages/Profiles";
 import Layout from "./components/layout";
 import BoardBuilder from "./modules/pranchas/pages/BoardBuilder";
+import Protected from "./routes/Protected";
 import Feedbacks from "./pages/Feedbacks";
+import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
+import PatientsList from "./pages/patients/PatientsList";
+import PatientNew from "./pages/patients/PatientNew.tsx";
+import PatientProfile from "./pages/patients/PatientProfile.tsx";
+
 
 export default function App() {
   return (
@@ -20,13 +27,27 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         {<Route path="/pranchas" element={<BoardBuilder />} /> }
 
-        {/* Rotas com layout (Sidebar aparece aqui UMA única vez) */}
-        <Route element={<Layout />}>
-           <Route path="/profiles" element={<Profiles />} />       
-           <Route path="/dashboard" element={<Dashboard />} />
-           <Route path="/evolution" element={<Evolution />} />
-          {<Route path="/pranchas" element={<BoardBuilder />} /> }
-          <Route path="/feedbacks" element={<Feedbacks />} />
+        {/* Pacientes */}
+          <Route path="/patients" element={<PatientsList />} />
+          <Route path="/patients/new" element={<PatientNew />} />
+          <Route path="/patients/:id" element={<PatientProfile />} />
+
+
+
+         {/* protegidas */}
+        <Route element={<Protected />}>
+          <Route element={<Layout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profiles" element={<Profiles />} />
+            <Route path="/evolution" element={<Evolution />} />
+            <Route path="/pranchas" element={<BoardBuilder />} />
+            <Route path="/feedbacks" element={<Feedbacks />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/settings" element={<Settings />} />
+
+            
+
+          </Route>
         </Route>
       </Routes>
     </Router>

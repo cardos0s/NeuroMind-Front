@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import type { UserRegisterRequest, UserRegisterResponse } from "../types/user"; // <-- aqui o import correto
+import type { UserRegisterRequest } from "../types/user";
+import type { AuthPayload } from "../types/auth";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -11,13 +12,19 @@ export default function Register() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
     const payload: UserRegisterRequest = { name, email, password };
     console.log("Enviando para API:", payload);
 
     try {
-      const response = await api.post<UserRegisterResponse>("/User/register", payload);
-      console.log("Registro realizado com sucesso:", response.data);
-      alert("Conta criada com sucesso!");
+      // 👇 Use o tipo certo que corresponde ao que o back retorna
+      const { data } = await api.post<AuthPayload>("/Auth/register", payload);
+
+      // salva e redireciona
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userName", data.user.name);
+
+      alert(`Conta criada com sucesso! Bem-vinda, ${data.user.name}.`);
       navigate("/dashboard");
     } catch (error) {
       console.error("Erro ao registrar:", error);

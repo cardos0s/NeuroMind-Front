@@ -28,10 +28,15 @@ export default function Sidebar() {
           <Home size={18} />
           {isExpanded && "Overview"}
         </NavLink>
-        <NavLink to="/profiles" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}>
-          <Users size={18} />
-          {isExpanded && "Perfis de Paciente"}
-        </NavLink>
+       <NavLink
+  to="/patients"
+  className={({ isActive }) =>
+    `${linkBase} ${isActive ? linkActive : linkIdle}`
+  }
+>
+  <Users size={18} />
+  {isExpanded && "Perfis de Paciente"}
+</NavLink>
         <NavLink to="/evolution" className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}>
           <BarChart2 size={18} />
           {isExpanded && "Evolução"}
