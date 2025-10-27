@@ -1,6 +1,11 @@
 
 export type Sex = 'M' | 'F' | 'X';
 
+export type TherapyEntry = {
+  area: string;   // "Fono", "TO", "Psico"…
+  date: string;   // "2025-09-12"
+  note: string;   // resumo curto
+};
 export interface Guardian {
   name: string;
   relation: string;   // mãe, pai, tutor…
@@ -25,6 +30,13 @@ export interface Patient {
   summary?: string; // <- novo
   status?: string; 
   createdAt?:string;// ← lista de diagnósticos
+
+  avatarUrl?: string;
+  guardianName?: string;
+  guardianPhone?: string;
+  schoolInfo?: string;
+  allergies?: string[];
+  therapies?: TherapyEntry[];
 }
 
 export interface CreatePatientDTO {

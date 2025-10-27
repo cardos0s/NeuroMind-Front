@@ -1,5 +1,6 @@
 import StatCard from "../components/statcard";
 import ProgressBar from "../components/progressbar";
+import ClinicEvolutionChart from "../components/charts/ClinicEvolutionChart"; 
 
 export default function Dashboard() {
   const stats = [
@@ -25,12 +26,8 @@ export default function Dashboard() {
     <div>
       {/* título */}
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-gray-800">
-          Overview do atendimento
-        </h2>
-        <p className="text-sm text-gray-500">
-          Resumo rápido do uso e evolução dos perfis.
-        </p>
+        <h2 className="text-xl font-semibold text-gray-800">Overview do atendimento</h2>
+        <p className="text-sm text-gray-500">Resumo rápido do uso e evolução dos perfis.</p>
       </div>
 
       {/* cards */}
@@ -46,13 +43,15 @@ export default function Dashboard() {
         <div className="lg:col-span-2 space-y-4">
           <div className="bg-white rounded-xl border p-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-gray-800">
-                Evolução (últimas semanas)
-              </h3>
-              <span className="text-xs text-gray-400">mock</span>
+              <h3 className="font-semibold text-gray-800">Evolução (últimas semanas)</h3>
+              <span className="text-xs text-gray-400">últimas 12 semanas</span>
             </div>
-            <div className="mt-3 h-40 rounded-lg bg-gradient-to-r from-purple-50 to-purple-100 border flex items-center justify-center text-purple-700 text-sm">
-              Aqui entra o gráfico (Recharts/Chart.js) – só front por enquanto
+
+            {/* container do gráfico — altura maior e sem flex-center */}
+            <div className="mt-3 h-64">
+              <ClinicEvolutionChart fetchFromApi={false} weeks={12} />
+              {/* quando o endpoint estiver pronto:
+              <ClinicEvolutionChart fetchFromApi weeks={12} /> */}
             </div>
           </div>
 
@@ -66,13 +65,11 @@ export default function Dashboard() {
         {/* atualizações */}
         <div className="space-y-4">
           <div className="bg-white rounded-xl border p-4">
-            <h3 className="font-semibold text-gray-800 mb-3">
-              Atualizações recentes
-            </h3>
+            <h3 className="font-semibold text-gray-800 mb-3">Atualizações recentes</h3>
             <ul className="space-y-3">
               {updates.map((u) => (
                 <li key={u.id} className="flex items-start gap-3">
-                  <span className="mt-1 size-2 rounded-full bg-purple-500" />
+                  <span className="mt-1 w-2 h-2 rounded-full bg-purple-500" /> {/* <-- w-2 h-2 */}
                   <div>
                     <p className="text-sm text-gray-700">{u.text}</p>
                     <p className="text-xs text-gray-400">{u.when}</p>
@@ -83,9 +80,7 @@ export default function Dashboard() {
           </div>
 
           <div className="bg-white rounded-xl border p-4">
-            <h3 className="font-semibold text-gray-800 mb-2">
-              Próximas ações
-            </h3>
+            <h3 className="font-semibold text-gray-800 mb-2">Próximas ações</h3>
             <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
               <li>Revisar feedbacks pendentes</li>
               <li>Definir metas da semana para cada perfil</li>
