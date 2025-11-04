@@ -1,274 +1,322 @@
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
-} from "recharts";
-import { MessageSquare, Clock, ThumbsUp, ThumbsDown } from "lucide-react";
+import { useState } from "react";
+import { Search } from "lucide-react";
 
-// cores usadas nos gráficos
-const COLORS = ["#7c3aed", "#22c55e", "#f59e0b", "#ef4444"];
-
-type FeedbackItem = {
-  id: string;
-  profile: string;
-  author: string;       // terapeuta / familiar
-  channel: "app" | "sessão" | "relatório";
-  sentiment: "positivo" | "neutro" | "negativo";
-  createdAt: string;    // ISO ou legível
-  text: string;
-  status: "pendente" | "lido" | "resolvido";
+// mock de paciente
+type PatientFeedbackView = {
+  id: number;
+  name: string;
+  feedbacks: Array<{
+    id: number;
+    author: string;
+    channel: string;
+    sentiment: "positivo" | "neutro" | "negativo";
+    text: string;
+    when: string;
+  }>;
 };
 
-export default function Feedbacks() {
-  // KPIs (mock)
-  const stats = [
-    { label: "Feedbacks no mês", value: 32, icon: MessageSquare },
-    { label: "Tempo médio de resposta", value: "6h 40m", icon: Clock },
-    { label: "Positivos", value: 71 + "%", icon: ThumbsUp },
-    { label: "Negativos", value: 9 + "%", icon: ThumbsDown },
-  ];
+export default function FeedbacksPage() {
+  const [activeTab, setActiveTab] = useState<"overview" | string>("overview");
+  const [patientTabs, setPatientTabs] = useState<PatientFeedbackView[]>([]);
+  const [search, setSearch] = useState("");
 
-  // distribuição por sentimento (mock)
-  const sentimentData = [
-    { name: "Positivo", value: 71 },
-    { name: "Neutro", value: 20 },
-    { name: "Negativo", value: 9 },
-  ];
+  async function handleSearch() {
+    const name = search.trim();
+    if (!name) return;
 
-  // tendência semanal de feedbacks (mock)
-  const weekly = [
-    { week: "Sem 1", total: 6 },
-    { week: "Sem 2", total: 9 },
-    { week: "Sem 3", total: 7 },
-    { week: "Sem 4", total: 10 },
-  ];
+    // aqui você chama sua API real:
+    // const patient = await PatientsApi.getByName(name);
+    // const feedbacks = await FeedbacksApi.listByPatient(patient.id);
 
-  // últimos feedbacks (mock)
-  const recent: FeedbackItem[] = [
-    {
-      id: "f1",
-      profile: "Maria",
-      author: "Terapeuta Ana",
-      channel: "sessão",
-      sentiment: "positivo",
-      createdAt: "Hoje, 15:20",
-      text: "Ótima resposta aos botões de rotina.",
-      status: "lido",
-    },
-    {
-      id: "f2",
-      profile: "João",
-      author: "Mãe",
-      channel: "app",
-      sentiment: "neutro",
-      createdAt: "Ontem, 19:02",
-      text: "Dificuldade com o botão de “água”.",
-      status: "pendente",
-    },
-    {
-      id: "f3",
-      profile: "Ana",
-      author: "Terapeuta Lucas",
-      channel: "relatório",
-      sentiment: "negativo",
-      createdAt: "Seg, 10:05",
-      text: "Queda de precisão no toque ao final da sessão.",
-      status: "pendente",
-    },
-  ];
+    // vou simular um resultado:
+    const fake: PatientFeedbackView = {
+      id: Math.floor(Math.random() * 10000),
+      name,
+      feedbacks: [
+        {
+          id: 1,
+          author: "Terapeuta Ana",
+          channel: "Sessão",
+          sentiment: "positivo",
+          text: "Ótima evolução na rotina de água.",
+          when: "Hoje, 15:20",
+        },
+        {
+          id: 2,
+          author: "Mãe",
+          channel: "App",
+          sentiment: "neutro",
+          text: "Dificuldade com o botão de 'água'.",
+          when: "Ontem, 19:02",
+        },
+      ],
+    };
 
-  const pending = recent.filter((r) => r.status === "pendente");
+    // se já existe uma aba com esse nome, só ativa
+    const exists = patientTabs.find((p) => p.name.toLowerCase() === name.toLowerCase());
+    if (exists) {
+      setActiveTab(exists.name);
+    } else {
+      setPatientTabs((prev) => [...prev, fake]);
+      setActiveTab(fake.name);
+    }
+  }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Título */}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-800">Feedbacks</h2>
-        <p className="text-sm text-gray-500">
-          Acompanhe opiniões, observações clínicas e pontos de atenção por perfil.
-        </p>
+    <div className="p-6 bg-slate-50 min-h-screen space-y-6">
+      {/* topo */}
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Feedbacks</h1>
+          <p className="text-sm text-slate-500">
+            Acompanhe opiniões, observações clínicas e pontos de atenção por perfil.
+          </p>
+        </div>
+
+        {/* barra de busca */}
+        <div className="flex items-center gap-2 bg-white rounded-lg border px-3 py-1.5 w-72">
+          <Search size={16} className="text-slate-400" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            className="flex-1 outline-none text-sm"
+            placeholder="Procurar paciente..."
+          />
+          <button
+            onClick={handleSearch}
+            className="text-xs bg-purple-600 text-white px-3 py-1 rounded-md"
+          >
+            Buscar
+          </button>
+        </div>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map(({ label, value, icon: Icon }) => (
-          <div key={label} className="bg-white border rounded-xl p-4 flex items-center gap-4">
-            <div className="p-2 rounded-lg bg-purple-50 text-purple-600">
-              <Icon className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="text-xs text-gray-500">{label}</div>
-              <div className="text-lg font-semibold text-gray-800">{value}</div>
-            </div>
+      {/* abas */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setActiveTab("overview")}
+          className={`px-4 py-2 rounded-lg text-sm font-medium ${
+            activeTab === "overview"
+              ? "bg-white shadow-sm border text-slate-900"
+              : "text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          Visão geral
+        </button>
+
+        {patientTabs.map((p) => (
+          <div key={p.id} className="flex items-center gap-1">
+            <button
+              onClick={() => setActiveTab(p.name)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                activeTab === p.name
+                  ? "bg-white shadow-sm border text-slate-900"
+                  : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              {p.name}
+            </button>
+            {/* botão de fechar a aba do paciente */}
+            {activeTab === p.name && (
+              <button
+                onClick={() => {
+                  setPatientTabs((prev) => prev.filter((pt) => pt.id !== p.id));
+                  setActiveTab("overview");
+                }}
+                className="text-slate-400 hover:text-slate-600 text-xs"
+              >
+                ✕
+              </button>
+            )}
           </div>
         ))}
       </div>
 
-      {/* Gráficos + Sugestões */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Card: Tendência semanal */}
-        <div className="bg-white border rounded-xl p-4 xl:col-span-2">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-800">Volume de feedbacks (semanal)</h3>
-            <span className="text-xs text-gray-400">mock</span>
+      {/* conteúdo da aba */}
+      {activeTab === "overview" ? (
+        <FeedbacksOverview />
+      ) : (
+        <PatientFeedbackTab
+          patient={patientTabs.find((p) => p.name === activeTab)!}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ================== componentes auxiliares ================== */
+
+function FeedbacksOverview() {
+  return (
+    <div className="space-y-6">
+      {/* cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl p-4 shadow-sm border">
+          <p className="text-xs text-slate-500">Feedbacks no mês</p>
+          <p className="text-2xl font-bold text-slate-900 mt-1">32</p>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm border">
+          <p className="text-xs text-slate-500">Tempo médio de resposta</p>
+          <p className="text-2xl font-bold text-slate-900 mt-1">6h 40m</p>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm border">
+          <p className="text-xs text-slate-500">Positivos</p>
+          <p className="text-2xl font-bold text-green-600 mt-1">71%</p>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm border">
+          <p className="text-xs text-slate-500">Negativos</p>
+          <p className="text-2xl font-bold text-red-500 mt-1">9%</p>
+        </div>
+      </div>
+
+      {/* bloco principal */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* gráfico mock */}
+        <div className="bg-white rounded-xl shadow-sm border p-4 lg:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-slate-800">
+              Volume de feedbacks (semanal)
+            </h2>
+            <span className="text-xs text-slate-400">mock</span>
           </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weekly} barCategoryGap={20}>
-                <XAxis dataKey="week" stroke="#9CA3AF" />
-                <YAxis stroke="#9CA3AF" />
-                <Tooltip />
-                <Bar dataKey="total" radius={[6, 6, 0, 0]} fill="#7c3aed" />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-48 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-sm">
+            (gráfico)
           </div>
         </div>
 
-        {/* Card: Distribuição por sentimento */}
-        <div className="bg-white border rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-800">Distribuição por sentimento</h3>
-            <span className="text-xs text-gray-400">mock</span>
+        {/* donut mock */}
+        <div className="bg-white rounded-xl shadow-sm border p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-slate-800">
+              Distribuição por sentimento
+            </h2>
+            <span className="text-xs text-slate-400">mock</span>
           </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={sentimentData}
-                  dataKey="value"
-                  nameKey="name"
-                  innerRadius={50}
-                  outerRadius={80}
-                  paddingAngle={4}
-                >
-                  {sentimentData.map((entry, idx) => (
-                    <Cell key={entry.name} fill={COLORS[idx % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
-            {sentimentData.map((s, idx) => (
-              <div key={s.name} className="flex items-center gap-2">
-                <span
-                  className="inline-block h-2 w-2 rounded-full"
-                  style={{ background: COLORS[idx % COLORS.length] }}
-                />
-                <span className="text-gray-700">{s.name}</span>
-                <span className="ml-auto text-gray-500">{s.value}%</span>
+          <div className="flex gap-4 items-center">
+            <div className="w-28 h-28 rounded-full border-[10px] border-purple-500 border-l-green-400 border-b-yellow-300"></div>
+            <div className="text-xs space-y-1">
+              <div className="flex gap-2 items-center">
+                <span className="w-2 h-2 rounded-full bg-purple-500" /> Positivo
+                71%
               </div>
-            ))}
+              <div className="flex gap-2 items-center">
+                <span className="w-2 h-2 rounded-full bg-yellow-300" /> Neutro
+                20%
+              </div>
+              <div className="flex gap-2 items-center">
+                <span className="w-2 h-2 rounded-full bg-green-400" /> Negativo
+                9%
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Duas colunas: pendentes + recentes */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Pendentes */}
-        <div className="bg-white border rounded-xl p-4 lg:col-span-2">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-800">Pendentes de resposta</h3>
-            <button className="text-xs px-2 py-1 rounded bg-purple-600 text-white hover:bg-purple-700">
-              Marcar todos como lidos
-            </button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="text-left text-gray-500">
-                  <th className="py-2">Perfil</th>
-                  <th className="py-2">Autor</th>
-                  <th className="py-2">Canal</th>
-                  <th className="py-2">Sentimento</th>
-                  <th className="py-2">Quando</th>
-                  <th className="py-2 text-right">Ação</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pending.map((p) => (
-                  <tr key={p.id} className="border-t">
-                    <td className="py-2 text-gray-800">{p.profile}</td>
-                    <td className="py-2 text-gray-700">{p.author}</td>
-                    <td className="py-2 text-gray-600 capitalize">{p.channel}</td>
-                    <td className="py-2">
-                      <span
-                        className={`px-2 py-0.5 rounded text-xs ${
-                          p.sentiment === "positivo"
-                            ? "bg-green-50 text-green-700"
-                            : p.sentiment === "negativo"
-                            ? "bg-red-50 text-red-700"
-                            : "bg-amber-50 text-amber-700"
-                        }`}
-                      >
-                        {p.sentiment}
-                      </span>
-                    </td>
-                    <td className="py-2 text-gray-500">{p.createdAt}</td>
-                    <td className="py-2 text-right">
-                      <button className="px-2 py-1 text-xs rounded border hover:bg-gray-50">
-                        Responder
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {pending.length === 0 && (
-                  <tr>
-                    <td className="py-6 text-center text-gray-500" colSpan={6}>
-                      Nenhum feedback pendente.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+      {/* tabela de pendentes */}
+      <div className="bg-white rounded-xl shadow-sm border p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-slate-800">Pendentes de resposta</h2>
+          <button className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-md">
+            Marcar todos como lidos
+          </button>
         </div>
-
-        {/* Recentes */}
-        <div className="bg-white border rounded-xl p-4">
-          <h3 className="font-semibold text-gray-800 mb-3">Recentes</h3>
-          <ul className="space-y-3">
-            {recent.map((f) => (
-              <li key={f.id} className="p-3 border rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div className="font-medium text-gray-800">
-                    {f.profile} — <span className="text-gray-600">{f.author}</span>
-                  </div>
-                  <span className="text-xs text-gray-400">{f.createdAt}</span>
-                </div>
-                <p className="text-sm text-gray-700 mt-1">{f.text}</p>
-                <div className="mt-2 flex items-center gap-2 text-xs">
-                  <span className="px-2 py-0.5 rounded bg-gray-100 capitalize">{f.channel}</span>
-                  <span
-                    className={`px-2 py-0.5 rounded capitalize ${
-                      f.sentiment === "positivo"
-                        ? "bg-green-50 text-green-700"
-                        : f.sentiment === "negativo"
-                        ? "bg-red-50 text-red-700"
-                        : "bg-amber-50 text-amber-700"
-                    }`}
-                  >
-                    {f.sentiment}
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="text-left text-slate-400 border-b">
+                <th className="py-2">Perfil</th>
+                <th className="py-2">Autor</th>
+                <th className="py-2">Canal</th>
+                <th className="py-2">Sentimento</th>
+                <th className="py-2">Quando</th>
+                <th className="py-2 text-right">Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b last:border-0">
+                <td className="py-2">João</td>
+                <td className="py-2">Mãe</td>
+                <td className="py-2">App</td>
+                <td className="py-2">
+                  <span className="px-2 py-1 rounded bg-yellow-50 text-yellow-700 text-xs">
+                    neutro
                   </span>
-                </div>
-              </li>
-            ))}
-          </ul>
+                </td>
+                <td className="py-2">Ontem, 19:02</td>
+                <td className="py-2 text-right">
+                  <button className="text-xs text-purple-600 hover:underline">
+                    Responder
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td className="py-2">Ana</td>
+                <td className="py-2">Terapeuta Lucas</td>
+                <td className="py-2">Relatório</td>
+                <td className="py-2">
+                  <span className="px-2 py-1 rounded bg-red-50 text-red-700 text-xs">
+                    negativo
+                  </span>
+                </td>
+                <td className="py-2">Seg, 10:05</td>
+                <td className="py-2 text-right">
+                    <button className="text-xs text-purple-600 hover:underline">
+                      Responder
+                    </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-          {/* Ações rápidas */}
-          <div className="mt-4 border-t pt-4 space-y-2">
-            <h4 className="text-sm font-semibold text-gray-800">Ações rápidas</h4>
-            <div className="flex flex-wrap gap-2">
-              <button className="px-3 py-1.5 text-sm rounded border hover:bg-gray-50">
-                Exportar CSV
-              </button>
-              <button className="px-3 py-1.5 text-sm rounded border hover:bg-gray-50">
-                Enviar resumo semanal
-              </button>
-              <button className="px-3 py-1.5 text-sm rounded bg-purple-600 text-white hover:bg-purple-700">
-                Criar meta a partir de feedback
-              </button>
+function PatientFeedbackTab({ patient }: { patient: PatientFeedbackView }) {
+  return (
+    <div className="space-y-4">
+      <div className="bg-white rounded-xl shadow-sm border p-4 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900">
+            {patient.name}
+          </h2>
+          <p className="text-sm text-slate-500">
+            {patient.feedbacks.length} feedback(s) encontrados para este paciente.
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border p-4">
+        <h3 className="text-sm font-medium text-slate-700 mb-3">
+          Feedbacks do paciente
+        </h3>
+        <div className="space-y-3">
+          {patient.feedbacks.map((f) => (
+            <div
+              key={f.id}
+              className="flex items-start justify-between gap-4 border rounded-lg px-4 py-3"
+            >
+              <div>
+                <p className="text-sm text-slate-900">{f.text}</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  {f.author} • {f.channel} • {f.when}
+                </p>
+              </div>
+              <span
+                className={`text-xs px-2 py-1 rounded-full ${
+                  f.sentiment === "positivo"
+                    ? "bg-emerald-50 text-emerald-700"
+                    : f.sentiment === "negativo"
+                    ? "bg-red-50 text-red-600"
+                    : "bg-yellow-50 text-yellow-700"
+                }`}
+              >
+                {f.sentiment}
+              </span>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>

@@ -1,134 +1,196 @@
-import { CheckCircle, AlertTriangle, Activity, FileText, TrendingUp } from "lucide-react";
-import ClinicEvolutionChart from "../../components/charts/ClinicEvolutionChart";
+import { useState } from "react";
+import { Search, Calendar, Download, X } from "lucide-react";
 
-export default function Evolution() {
-  const handleExportPDF = () => {
-    // TODO: implementar exportação (html2canvas + jsPDF) ou endpoint no backend
-    // ex.: gerar PDF do container principal por id/ref
-    console.log("Exportar relatório acionado");
-  };
+type ReportRow = {
+  patient: string;
+  period: string;
+  sessions: number;
+  hits: number;
+  touches: number;
+  accuracy: number; // 0 a 1
+};
+
+export default function Reports() {
+  const [patient, setPatient] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+
+  const [data, setData] = useState<ReportRow[]>([
+    { patient: "Maria", period: "2025-08", sessions: 6, hits: 142, touches: 210, accuracy: 0.68 },
+    { patient: "João", period: "2025-08", sessions: 5, hits: 101, touches: 180, accuracy: 0.56 },
+    { patient: "Ana", period: "2025-08", sessions: 7, hits: 155, touches: 223, accuracy: 0.70 },
+  ]);
+
+  function handleClear() {
+    setPatient("");
+    setDateFrom("");
+    setDateTo("");
+  }
+
+  // filtros simples
+  const filtered = data.filter((row) => {
+    const matchPatient =
+      !patient.trim() ||
+      row.patient.toLowerCase().includes(patient.toLowerCase());
+
+    // aqui você poderia filtrar por período usando dateFrom/dateTo
+    return matchPatient;
+  });
+
+  const totalSessions = filtered.reduce((acc, r) => acc + r.sessions, 0);
+  const totalTouches = filtered.reduce((acc, r) => acc + r.touches, 0);
+  const avgAccuracy =
+    filtered.length > 0
+      ? filtered.reduce((acc, r) => acc + r.accuracy, 0) / filtered.length
+      : 0;
 
   return (
-    <div className="space-y-6">
-      {/* título */}
+    <div className="p-6 bg-slate-50 min-h-screen space-y-6">
+      {/* header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h2 className="text-xl font-semibold text-gray-800">Relatório de Evolução</h2>
-          <TrendingUp className="w-5 h-5 text-purple-600" />
-        </div>
-        <button
-          onClick={handleExportPDF}
-          className="rounded-lg bg-purple-600 px-4 py-2 text-sm text-white hover:bg-purple-700"
-        >
-          <span className="inline-flex items-center gap-2">
-            <FileText className="w-4 h-4" />
-            Gerar Relatório PDF
-          </span>
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Gráfico principal: agora com o componente consolidado */}
-        <div className="lg:col-span-2 bg-white border rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-800">Evolução da clínica</h3>
-            <span className="text-xs text-gray-500">Últimas 12 semanas</span>
-          </div>
-          <div className="h-[260px]">
-            <ClinicEvolutionChart fetchFromApi={false} weeks={12} />
-            {/* Quando o endpoint estiver pronto: <ClinicEvolutionChart fetchFromApi weeks={12} /> */}
-          </div>
-        </div>
-
-        {/* Resumo lateral */}
-        <div className="bg-white border rounded-xl p-4 space-y-3">
-          <h3 className="font-semibold text-gray-800 mb-2">Resumo de Sessões</h3>
-          <div className="space-y-2">
-            <CardRow label="Sessões realizadas" value={24} icon={<CheckCircle className="w-4 h-4 text-green-500" />} />
-            <CardRow label="Feedbacks pendentes" value={5} icon={<AlertTriangle className="w-4 h-4 text-yellow-500" />} />
-            <CardRow label="Último acesso" value="há 2h" icon={<Activity className="w-4 h-4 text-purple-500" />} />
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Relatórios</h1>
+          <p className="text-sm text-slate-500">
+            Filtre, visualize e exporte dados de sessões e desempenho.
+          </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Sugestões automáticas */}
-        <div className="bg-white border rounded-xl p-4">
-          <h3 className="font-semibold text-gray-800 mb-3">Sugestões de Melhorias</h3>
-          <ul className="space-y-2 text-sm">
-            <li className="flex justify-between">
-              <span>Trabalhar atenção sustentada</span>
-              <span className="text-green-600">+12%</span>
-            </li>
-            <li className="flex justify-between">
-              <span>Exercícios de comunicação alternativa</span>
-              <span className="text-green-600">+9%</span>
-            </li>
-            <li className="flex justify-between">
-              <span>Revisar precisão no toque</span>
-              <span className="text-red-500">-4%</span>
-            </li>
-          </ul>
+      {/* filtros */}
+      <div className="bg-white rounded-2xl border shadow-sm p-4 flex flex-wrap gap-3 items-center">
+        {/* buscar paciente */}
+        <div className="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2 w-full md:w-60 border border-transparent focus-within:border-purple-200">
+          <Search size={16} className="text-slate-400" />
+          <input
+            value={patient}
+            onChange={(e) => setPatient(e.target.value)}
+            className="bg-transparent outline-none text-sm flex-1"
+            placeholder="Buscar paciente..."
+          />
+          {patient && (
+            <button onClick={() => setPatient("")} className="text-slate-300 hover:text-slate-500">
+              <X size={14} />
+            </button>
+          )}
         </div>
 
-        {/* Indicadores */}
-        <div className="bg-white border rounded-xl p-4">
-          <h3 className="font-semibold text-gray-800 mb-3">Indicadores de Desempenho</h3>
-          <ul className="space-y-2 text-sm">
-            <li className="flex justify-between">
-              <span>Comunicação por botões</span>
-              <span className="text-purple-600 font-medium">72%</span>
-            </li>
-            <li className="flex justify-between">
-              <span>Precisão no toque</span>
-              <span className="text-purple-600 font-medium">64%</span>
-            </li>
-            <li className="flex justify-between">
-              <span>Tempo de atenção</span>
-              <span className="text-purple-600 font-medium">58%</span>
-            </li>
-          </ul>
+        {/* data de */}
+        <div className="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2 w-full sm:w-48 border border-transparent focus-within:border-purple-200">
+          <Calendar size={16} className="text-slate-400" />
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="bg-transparent outline-none text-sm flex-1"
+          />
         </div>
 
-        {/* Ações recomendadas */}
-        <div className="bg-white border rounded-xl p-4">
-          <h3 className="font-semibold text-gray-800 mb-3">Próximas Ações</h3>
-          <ol className="list-decimal list-inside space-y-1 text-sm text-gray-700">
-            <li>Agendar nova avaliação</li>
-            <li>Gerar relatório semanal</li>
-            <li>Enviar feedback para terapeuta</li>
-          </ol>
+        {/* data até */}
+        <div className="flex items-center gap-2 bg-slate-50 rounded-lg px-3 py-2 w-full sm:w-48 border border-transparent focus-within:border-purple-200">
+          <Calendar size={16} className="text-slate-400" />
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="bg-transparent outline-none text-sm flex-1"
+          />
+        </div>
+
+        {/* botões */}
+        <div className="flex gap-2 ml-auto">
           <button
-            onClick={handleExportPDF}
-            className="mt-3 w-full rounded-lg bg-purple-600 py-2 text-white text-sm hover:bg-purple-700"
+            onClick={handleClear}
+            className="px-4 py-2 rounded-lg border text-sm text-slate-600 hover:bg-slate-50"
           >
-            <span className="inline-flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Exportar relatório
-            </span>
+            Limpar
+          </button>
+          <button
+            onClick={() => {
+              // aqui entra tua exportação real
+              console.log("export csv");
+            }}
+            className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+          >
+            <Download size={16} />
+            Exportar CSV
           </button>
         </div>
       </div>
-    </div>
-  );
-}
 
-function CardRow({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string | number;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-center justify-between p-2 rounded-lg border bg-gray-50">
-      <div className="flex items-center gap-2 text-sm text-gray-700">
-        {icon}
-        {label}
+      {/* cards de resumo */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white rounded-2xl p-4 border shadow-sm">
+          <p className="text-xs text-slate-500">Total de sessões</p>
+          <p className="text-2xl font-semibold text-slate-900 mt-1">
+            {totalSessions}
+          </p>
+        </div>
+        <div className="bg-white rounded-2xl p-4 border shadow-sm">
+          <p className="text-xs text-slate-500">Total de toques</p>
+          <p className="text-2xl font-semibold text-slate-900 mt-1">
+            {totalTouches}
+          </p>
+        </div>
+        <div className="bg-white rounded-2xl p-4 border shadow-sm">
+          <p className="text-xs text-slate-500">Taxa média de acerto</p>
+          <p className="text-2xl font-semibold text-slate-900 mt-1">
+            {Math.round(avgAccuracy * 100)}%
+          </p>
+        </div>
       </div>
-      <span className="font-medium text-gray-800">{value}</span>
+
+      {/* tabela */}
+      <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-slate-50 text-slate-500">
+              <th className="text-left px-4 py-3">Paciente</th>
+              <th className="text-left px-4 py-3">Período</th>
+              <th className="text-left px-4 py-3">Sessões</th>
+              <th className="text-left px-4 py-3">Acertos</th>
+              <th className="text-left px-4 py-3">Toques</th>
+              <th className="text-left px-4 py-3">Taxa de acerto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((row, idx) => (
+              <tr
+                key={row.patient + idx}
+                className="border-t hover:bg-slate-50"
+              >
+                <td className="px-4 py-3 text-slate-800">{row.patient}</td>
+                <td className="px-4 py-3">{row.period}</td>
+                <td className="px-4 py-3">{row.sessions}</td>
+                <td className="px-4 py-3">{row.hits}</td>
+                <td className="px-4 py-3">{row.touches}</td>
+                <td className="px-4 py-3">
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs ${
+                      row.accuracy >= 0.7
+                        ? "bg-emerald-50 text-emerald-700"
+                        : row.accuracy >= 0.5
+                        ? "bg-yellow-50 text-yellow-700"
+                        : "bg-red-50 text-red-600"
+                    }`}
+                  >
+                    {Math.round(row.accuracy * 100)}%
+                  </span>
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-4 py-6 text-center text-slate-400 text-sm"
+                >
+                  Nenhum resultado para os filtros selecionados.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

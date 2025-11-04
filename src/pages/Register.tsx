@@ -2,36 +2,44 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import type { UserRegisterRequest } from "../types/user";
-import type { AuthPayload } from "../types/auth";
 
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+
   const navigate = useNavigate();
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+ const handleRegister = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    const payload: UserRegisterRequest = { name, email, password };
-    console.log("Enviando para API:", payload);
+  const payload: UserRegisterRequest = { name, email, password };
 
-    try {
-      // 👇 Use o tipo certo que corresponde ao que o back retorna
-      const { data } = await api.post<AuthPayload>("/Auth/register", payload);
+  try {
+    const { data } = await api.post("/User/register", payload);
+    const anyData = data as any;
 
-      // salva e redireciona
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userName", data.user.name);
+    const token = anyData?.token;
+    const user = anyData?.user;
 
-      alert(`Conta criada com sucesso! Bem-vinda, ${data.user.name}.`);
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Erro ao registrar:", error);
-      alert("Erro ao criar conta. Verifique os dados e tente novamente.");
+    if (token) {
+      localStorage.setItem("token", token);
     }
-  };
 
+    if (user?.name) {
+      localStorage.setItem("userName", user.name);
+    } else if (anyData?.email) {
+      localStorage.setItem("userName", anyData.email);
+    }
+
+    alert("Conta criada com sucesso!");
+    navigate("/dashboard");
+  } catch (error) {
+    console.error("Erro ao registrar:", error);
+    alert("Erro ao criar conta. Verifique os dados e tente novamente.");
+  }
+};
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">

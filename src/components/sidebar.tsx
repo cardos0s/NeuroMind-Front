@@ -1,24 +1,32 @@
-// src/components/sidebar.tsx
 import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  Home, Users, BarChart2, FileText, MessageSquare, Settings, ChevronDown,
+  Home,
+  Users,
+  BarChart2,
+  FileText,
+  MessageSquare,
+  Settings,
+  LayoutTemplate,
+  ChevronDown,
 } from "lucide-react";
 
-const linkBase =
+const base =
   "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors";
-const linkIdle = "text-white/80 hover:bg-white/10";
-const linkActive = "bg-white/15 text-white";
+const idle = "text-white/80 hover:bg-white/10";
+const active = "bg-white/15 text-white";
 
 export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [openPatients, setOpenPatients] = useState(false);
   const { pathname } = useLocation();
 
-  // abre o submenu quando a rota começa com /patients
   useEffect(() => {
     if (pathname.startsWith("/patients")) setOpenPatients(true);
   }, [pathname]);
+
+  // estilo de ícones (mesmo tamanho em todos)
+  const iconStyle = "w-5 h-5 shrink-0";
 
   return (
     <aside
@@ -28,53 +36,60 @@ export default function Sidebar() {
       onMouseLeave={() => setIsExpanded(false)}
     >
       {/* Logo */}
-      <div className="flex items-center gap-2 px-2 py-3 mb-6">
+      <div className="flex items-center justify-center mb-8">
         <div className="text-xl font-bold">🧠</div>
-        {isExpanded && <div className="text-lg font-bold">NeuroMind</div>}
+        {isExpanded && (
+          <div className="ml-2 text-lg font-bold whitespace-nowrap">
+            NeuroMind
+          </div>
+        )}
       </div>
 
       {/* Menu */}
       <nav className="space-y-1">
+        {/* Overview */}
         <NavLink
           to="/dashboard"
-          className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+          className={({ isActive }) => `${base} ${isActive ? active : idle}`}
         >
-          <Home size={18} />
+          <Home className={iconStyle} />
           {isExpanded && "Overview"}
         </NavLink>
 
-        {/* Pacientes (item pai com submenu) */}
+        {/* Pacientes */}
         <div className="space-y-1">
-          {/* botão pai */}
           <button
             type="button"
             onClick={() => setOpenPatients((v) => !v)}
-            className={`${linkBase} w-full justify-between ${linkIdle} ${
-              pathname.startsWith("/patients") ? linkActive : ""
+            className={`${base} w-full justify-between ${
+              pathname.startsWith("/patients") ? active : idle
             }`}
-            aria-expanded={openPatients}
-            aria-controls="submenu-pacientes"
           >
             <span className="flex items-center gap-3">
-              <Users size={18} />
+              <Users className={iconStyle} />
               {isExpanded && "Pacientes"}
             </span>
             {isExpanded && (
               <ChevronDown
                 size={16}
-                className={`transition-transform ${openPatients ? "rotate-180" : ""}`}
+                className={`transition-transform ${
+                  openPatients ? "rotate-180" : ""
+                }`}
               />
             )}
           </button>
 
-          {/* submenu – só mostra quando expandido OU quando explicitamente aberto */}
-          {(isExpanded && openPatients) && (
-            <ul id="submenu-pacientes" className="ml-8 space-y-1">
+          {isExpanded && openPatients && (
+            <ul className="ml-2 space-y-1">
               <li>
                 <NavLink
                   to="/patients"
                   className={({ isActive }) =>
-                    `${linkBase} ${isActive ? linkActive : linkIdle}`
+                    `flex items-center px-9 py-2 rounded-lg text-sm transition ${
+                      isActive
+                        ? "bg-white/15 text-white"
+                        : "text-white/75 hover:bg-white/5"
+                    }`
                   }
                 >
                   Todos os perfis
@@ -82,19 +97,13 @@ export default function Sidebar() {
               </li>
               <li>
                 <NavLink
-                  to="/patients/new"
-                  className={({ isActive }) =>
-                    `${linkBase} ${isActive ? linkActive : linkIdle}`
-                  }
-                >
-                  Novo paciente
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
                   to="/patients/verify"
                   className={({ isActive }) =>
-                    `${linkBase} ${isActive ? linkActive : linkIdle}`
+                    `flex items-center px-9 py-2 rounded-lg text-sm transition ${
+                      isActive
+                        ? "bg-white/15 text-white"
+                        : "text-white/75 hover:bg-white/5"
+                    }`
                   }
                 >
                   Verificar paciente
@@ -104,43 +113,48 @@ export default function Sidebar() {
           )}
         </div>
 
+        {/* Evolução */}
         <NavLink
           to="/evolution"
-          className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+          className={({ isActive }) => `${base} ${isActive ? active : idle}`}
         >
-          <BarChart2 size={18} />
+          <BarChart2 className={iconStyle} />
           {isExpanded && "Evolução"}
         </NavLink>
 
+        {/* Relatórios */}
         <NavLink
           to="/reports"
-          className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+          className={({ isActive }) => `${base} ${isActive ? active : idle}`}
         >
-          <FileText size={18} />
+          <FileText className={iconStyle} />
           {isExpanded && "Relatórios"}
         </NavLink>
 
+        {/* Feedbacks */}
         <NavLink
           to="/feedbacks"
-          className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+          className={({ isActive }) => `${base} ${isActive ? active : idle}`}
         >
-          <MessageSquare size={18} />
+          <MessageSquare className={iconStyle} />
           {isExpanded && "Feedbacks"}
         </NavLink>
 
+        {/* Configurações */}
         <NavLink
           to="/settings"
-          className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+          className={({ isActive }) => `${base} ${isActive ? active : idle}`}
         >
-          <Settings size={18} />
+          <Settings className={iconStyle} />
           {isExpanded && "Configurações"}
         </NavLink>
 
+        {/* Pranchas */}
         <NavLink
           to="/pranchas"
-          className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+          className={({ isActive }) => `${base} ${isActive ? active : idle}`}
         >
-          <Settings size={18} />
+          <LayoutTemplate className={iconStyle} />
           {isExpanded && "Pranchas"}
         </NavLink>
       </nav>
