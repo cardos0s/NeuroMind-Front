@@ -1,8 +1,7 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Home from "./pages/Home";
-import Login from "./pages/Login";
+import AdminLogin from "./pages/Login"; // 👈 login antigo virou admin
 import Register from "./pages/Register";
 
 import Dashboard from "./pages/Dashboard";
@@ -22,35 +21,45 @@ import PatientProfile from "./pages/patients/PatientProfile";
 import EvolutionOverview from "./pages/evolution/EvolutionOverview";
 import EvolutionPatient from "./pages/evolution/EvolutionPatient";
 
-// OBS: PatientNew deve ser usado como modal dentro de PatientsList, não aqui como rota.
+// 👇 novos
+import RoleSelect from "./pages/Login/RoleSelect";
+import LoginProfessional from "./pages/Login/LoginProfessional";
+import LoginPatient from "./pages/Login/LoginPatient";
 
 export default function App() {
   return (
     <Router>
       <Routes>
-        {/* 📂 Rotas públicas (sem layout) */}
+        {/* 📂 Public routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
+
+        {/* novo fluxo de login por perfil */}
+        <Route path="/login" element={<RoleSelect />} />
+        <Route path="/login/professional" element={<LoginProfessional />} />
+        <Route path="/login/patient" element={<LoginPatient />} />
+
+        {/* login antigo → vira login da clínica/admin */}
+        <Route path="/login/admin" element={<AdminLogin />} />
+
         <Route path="/register" element={<Register />} />
 
-        {/* ⚙️ Rotas protegidas com layout */}
+        {/* ⚙️ Protected routes */}
         <Route element={<Protected />}>
           <Route element={<Layout />}>
-            {/* Dashboard e páginas principais */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profiles" element={<Profiles />} />
             <Route path="/feedbacks" element={<Feedbacks />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
 
-            {/* Módulo de pranchas */}
+            {/* Boards */}
             <Route path="/pranchas" element={<BoardBuilder />} />
 
-            {/* Pacientes */}
+            {/* Patients */}
             <Route path="/patients" element={<PatientsList />} />
             <Route path="/patients/:id" element={<PatientProfile />} />
 
-            {/* Evolução */}
+            {/* Evolution */}
             <Route path="/evolution" element={<EvolutionOverview />} />
             <Route path="/evolution/:patientId" element={<EvolutionPatient />} />
           </Route>
