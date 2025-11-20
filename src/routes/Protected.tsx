@@ -1,8 +1,7 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { isAuthenticated } from "../auth/session";
+import { Outlet } from "react-router-dom";
 
 export default function Protected() {
-  const authed = isAuthenticated();
-  const location = useLocation();
-  return authed ? <Outlet /> : <Navigate to="/login" replace state={{ from: location }} />;
+  // MODO FRONT-ONLY:
+  // por enquanto não bloqueia nada, só libera as rotas protegidas.
+  return <Outlet />;
 }
